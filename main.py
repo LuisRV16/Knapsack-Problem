@@ -2,7 +2,7 @@
 import matplotlib.pyplot as plt
 from test_cases import generate_test_cases
 from dp_solver import solve as dp_solve
-from sin_aneeal_solver import solve as sa_solve
+from sim_anneal_solver import solve as sa_solve
 from utils import compute_value
 
 
