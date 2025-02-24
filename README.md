@@ -1,5 +1,10 @@
 # Knapsack Problem Solution using Simulated Annealing
 
+### Versión en Español
+
+Si prefieres leer este documento en español, puedes consultar la [versión en español aquí](README_es.md).
+
+
 ## Importing Libraries
 
 ```python
