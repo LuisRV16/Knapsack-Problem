@@ -4,7 +4,7 @@ import random
 def generate_test_cases(seed):
     random.seed(seed)
     test_cases = []
-    num_cases = 500
+    num_cases = 10
     for _ in range(num_cases):
         # Longitud aleatoria entre 50 y 200
         n = random.randint(50, 200)

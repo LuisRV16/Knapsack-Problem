@@ -17,21 +17,23 @@ def solve(values, weights, capacity):
     T = 1000.0  # Temperatura inicial
     cooling_rate = 0.995  # Factor de enfriamiento
     min_T = 1e-3  # Temperatura mínima
+    max_iterations_per_T = 100
     
     while T > min_T:
-        new_solution = get_neighbor(current_solution)
-        new_value, new_weight = compute_value(values, weights, new_solution)
-        _, current_weight = compute_value(values, weights, current_solution)
-        
-        if new_weight <= capacity:
-            if new_value > best_value:
-                best_solution = new_solution[:]
-                best_value = new_value
-                current_solution = new_solution[:]
-            else:
-                delta = new_value - best_value
-                if math.exp(delta / T) > random.random():
+        for _ in range(max_iterations_per_T):
+            new_solution = get_neighbor(current_solution)
+            new_value, new_weight = compute_value(values, weights, new_solution)
+            _, current_weight = compute_value(values, weights, current_solution)
+            
+            if new_weight <= capacity:
+                if new_value > best_value:
+                    best_solution = new_solution[:]
+                    best_value = new_value
                     current_solution = new_solution[:]
+                else:
+                    delta = new_value - best_value
+                    if math.exp(delta / T) > random.random():
+                        current_solution = new_solution[:]
         
         T *= cooling_rate  # Enfriamiento
     

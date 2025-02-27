@@ -1,33 +1,23 @@
 # main.py
 import matplotlib.pyplot as plt
-from test_cases import generate_test_cases
-from dp_solver import solve as dp_solve
-from sim_anneal_solver import solve as sa_solve
-from utils import compute_value
+import json
 
 
 def main():
-    seed = 42
-    test_cases = generate_test_cases(seed)
+
+    f = open('results.json')
+    res = f.read()
+
+    results = json.loads(res)
 
     dp_results = []
     sa_results = []
 
-    for case in test_cases:
-        values = case['values']
-        weights = case['weights']
-        capacity = case['capacity']
+    for result in results:
+        l = results[result]
+        dp_results.append(l[0])
+        sa_results.append(l[1])
 
-        # Solución con DP
-        dp_solution = dp_solve(values, weights, capacity)
-        dp_val, _ = compute_value(values, weights, dp_solution)
-
-        # Solución con SA
-        sa_solution = sa_solve(values, weights, capacity)
-        sa_val, _ = compute_value(values, weights, sa_solution)
-
-        dp_results.append(dp_val)
-        sa_results.append(sa_val)
 
     # Crear gráfica comparativa: DP (óptimo) vs SA
     plt.figure(figsize=(10, 6))
