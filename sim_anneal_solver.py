@@ -10,9 +10,13 @@ def get_neighbor(solution):
 
 def solve(values, weights, capacity):
     n = len(values)
-    current_solution = [random.choice([0, 1]) for _ in range(n)]
-    best_solution = current_solution[:]
-    best_value, _ = compute_value(values, weights, best_solution)
+
+    best_weight = capacity + 1
+
+    while best_weight > capacity:
+        current_solution = [random.choice([0, 1]) for _ in range(n)]
+        best_solution = current_solution[:]
+        best_value, best_weight = compute_value(values, weights, best_solution)
     
     T = 1000.0  # Temperatura inicial
     cooling_rate = 0.995  # Factor de enfriamiento
@@ -31,9 +35,10 @@ def solve(values, weights, capacity):
                     best_value = new_value
                     current_solution = new_solution[:]
                 else:
-                    delta = new_value - best_value
-                    if math.exp(delta / T) > random.random():
+                    delta = new_value - compute_value(values, weights, current_solution)[0]
+                    if delta > 0 or math.exp(delta / max(1e-10, T)) > random.random():
                         current_solution = new_solution[:]
+
         
         T *= cooling_rate  # Enfriamiento
     

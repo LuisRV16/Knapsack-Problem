@@ -19,7 +19,7 @@ def test_cases():
 
         values = []
         weights = []
-
+                            
         for i in range(n):
             line = f.readline()
             v, w = line.split()
