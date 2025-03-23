@@ -1,76 +1,100 @@
 import matplotlib.pyplot as plt
 import json
 
-
 def main():
+    case = "s000.kp"
 
-    """
-        Abre el archivo JSON donde se guardaron 
-        los mejores 5 resultados de las 30 corridas
-        respectivamente por cada instancia (5 instancias)
-    """
+    # Cargar resultados desde archivos JSON
     with open('results_dp.json', 'r') as f:
         results = json.load(f)
     with open('results_sa.json', 'r') as f:
         results_sa = json.load(f)
     with open('results_g.json', 'r') as f:
         results_g = json.load(f)
+    with open('results_ils.json', 'r') as f:
+        results_ils = json.load(f)
 
-    dp_results = []
-    sa_results = []
-    genetic_results = []
+    # Obtener resultados de cada método
+    dp_result = results_sa["results_dp"]  # Óptimo (Programación Dinámica)
+    sa_result = results_sa["results_sa"]
+    ils_result = results_ils["results_ils"]
+    sa_result_with_ils = results_sa["results_sa_ils"]
+    sa_result_union_ils = results_sa["results_sa_comparator"]
+    sa_result_union_ils_v2 = results_sa["results_sa_comparator_v2"]
+    genetic_result = results_g["result_g"]
+
+    # Lista de resultados obtenidos
+    results = [sa_result, 
+               genetic_result,
+               ils_result,
+               sa_result_with_ils, 
+               sa_result_union_ils, 
+               sa_result_union_ils_v2]
+
+    labels = ["SA", "Genético", "ILS", "SA+ILS", "SA∪ILS", "SA∪ILS v2"]
+
+    # Calcular los errores porcentuales
     errors = []
+    if dp_result != 0:  # Evitar división por cero
+        errors = [abs(res - dp_result) / dp_result * 100 for res in results]
 
-    for case in results:
-        dp_value = results[case]
-        sa_value = results_sa[case]
-        genetic_value = results_g[case]
+    # Imprimir los errores porcentuales
+    for label, error in zip(labels, errors):
+        print(f"Error porcentual {label}: {error:.2f}%")
 
-        dp_results.append(dp_value)
-        sa_results.append(sa_value)
-        genetic_results.append(genetic_value)
+    # ----------------------------- #
+    # 📊 Gráfica de errores porcentuales
+    # ----------------------------- #
+    plt.figure(figsize=(10, 5))
 
-        # Calcular el error porcentual promedio para este caso
-        if dp_value != 0:  # Para evitar división por cero
-            error_percent_sa = abs(sa_value - dp_value) / dp_value * 100
-            error_percent_ge = abs(genetic_value - dp_value) / dp_value * 100
-            error_percent = (error_percent_sa, error_percent_ge)
-            errors.append(error_percent)
+    # Puntos de resultados
+    plt.scatter(labels, results, color='blue', label="Resultados Metaheurísticos", s=100)
+    
+    # Línea del óptimo
+    plt.axhline(y=dp_result, color='red', linestyle='--', label="Óptimo (DP)")
 
-    # Imprimir los errores porcentuales promedio
-    for error in errors:
-        print(f"Error porcentual promedio SA: {error[0]:.2f}%", ',', f"Error porcentual promedio Genético: {error[1]:.2f}%")
+    # Añadir etiquetas de error a cada punto
+    for i, (label, res, error) in enumerate(zip(labels, results, errors)):
+        plt.text(i, res, f"{error:.2f}%", fontsize=10, ha='right', va='bottom')
 
-    # Crear gráfica comparativa: DP (óptimo) vs SA
-    plt.figure(figsize=(10, 6))
-    plt.scatter(dp_results, sa_results, alpha=0.5, label='Casos de prueba')
-
-    # Línea de referencia y=x (óptimo)
-    min_val, max_val = min(dp_results), max(dp_results)
-    plt.plot([min_val, max_val], [min_val, max_val], 'r--', label='y = x (óptimo)')
-
-    plt.xlabel("Valor óptimo obtenido (DP)")
-    plt.ylabel("Valor obtenido (SA)")
-    plt.title("Comparación de soluciones: Programación Dinámica vs Recocido Simulado en Knapsack 0/1")
+    # Configuración de la gráfica
+    plt.xlabel("Métodos")
+    plt.ylabel("Valor obtenido")
+    plt.title("Comparación de Resultados con el Óptimo")
     plt.legend()
     plt.grid(True)
+
+    # Mostrar la gráfica de errores porcentuales
     plt.show()
 
-    # Crear gráfica comparativa: DP (óptimo) vs genetic
-    plt.figure(figsize=(10, 6))
-    plt.scatter(dp_results, genetic_results, alpha=0.5, label='Casos de prueba')
+    # ----------------------------- #
+    # 📊 Gráfica de tiempos de ejecución
+    # ----------------------------- #
+    
+    # Lista de tiempos (corregida)
+    times = [results_sa["time_sa"],
+             results_g["time_g"],
+             results_ils["time_ils"],
+             results_sa["time_sa_ils"],
+             results_sa["time_sa_comparator"],
+             results_sa["time_sa_comparator_v2"]]
 
-    # Línea de referencia y=x (óptimo)
-    min_val, max_val = min(dp_results), max(dp_results)
-    plt.plot([min_val, max_val], [min_val, max_val], 'r--', label='y = x (óptimo)')
+    # Crear la gráfica de barras
+    plt.figure(figsize=(10, 5))
+    plt.bar(labels, times, color=['blue', 'green', 'orange', 'purple', 'brown', 'pink'])
 
-    plt.xlabel("Valor óptimo obtenido (DP)")
-    plt.ylabel("Valor obtenido (Genetic)")
-    plt.title("Comparación de soluciones: Programación Dinámica vs Genetico en Knapsack 0/1")
-    plt.legend()
-    plt.grid(True)
+    # Añadir etiquetas de tiempo sobre cada barra
+    for i, time in enumerate(times):
+        plt.text(i, time, f"{time:.2f}s", ha='center', va='bottom', fontsize=10)
+
+    # Configuración de la gráfica
+    plt.xlabel("Métodos")
+    plt.ylabel("Tiempo de ejecución (s)")
+    plt.title("Comparación de Tiempos de Ejecución")
+    plt.grid(axis='y')
+
+    # Mostrar la gráfica de tiempos
     plt.show()
 
-
-if __name__ == "__main__":
-    main()
+# Ejecutar la función principal
+main()
